@@ -49,8 +49,14 @@ function Get-TestConfig {
     } catch {
         $config.CopilotVersion = 'Not installed'
     }
-    $config.SkillSource = if ($env:SKILL_SOURCE) { $env:SKILL_SOURCE } else { 'local' }
-    $config.SkillDir = if ($env:SKILL_DIR) { $env:SKILL_DIR } else { 'C:\work\Problem-Based-SRS' }
+    # Skill source - default is GitHub, local if SKILL_DIR is set
+    if ($env:SKILL_DIR) {
+        $config.SkillSource = 'local'
+        $config.SkillDir = $env:SKILL_DIR
+    } else {
+        $config.SkillSource = 'github'
+        $config.SkillDir = 'https://github.com/RafaelGorski/Problem-Based-SRS (cloned to temp)'
+    }
     $config.Model = if ($env:COPILOT_MODEL) { $env:COPILOT_MODEL } else { 'gpt-5' }
     $config.PytestVersion = (python -c "import pytest; print(pytest.__version__)" 2>&1)
     return $config

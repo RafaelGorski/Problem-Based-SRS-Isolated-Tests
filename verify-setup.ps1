@@ -95,19 +95,24 @@ try {
     Write-Check "Copilot CLI installed" $false "Install from https://docs.github.com/copilot"
 }
 
-# Check skills directory
+# Check skills directory (only relevant if using local)
 Write-Host ""
 Write-Host "Skills:" -ForegroundColor White
 $localSkillDir = $env:SKILL_DIR
-if (-not $localSkillDir) { $localSkillDir = "C:\work\Problem-Based-SRS" }
-$skillsExist = Test-Path "$localSkillDir\skills"
-Write-Check "Local skills directory" $skillsExist $localSkillDir
-
-if ($skillsExist) {
-    $skillCount = (Get-ChildItem "$localSkillDir\skills" -Directory | Where-Object { 
-        Test-Path "$($_.FullName)\SKILL.md" 
-    }).Count
-    Write-Check "Skills found" ($skillCount -gt 0) "$skillCount skills"
+if ($localSkillDir) {
+    $skillsExist = Test-Path "$localSkillDir\skills"
+    Write-Check "Local skills directory" $skillsExist $localSkillDir
+    
+    if ($skillsExist) {
+        $skillCount = (Get-ChildItem "$localSkillDir\skills" -Directory | Where-Object { 
+            Test-Path "$($_.FullName)\SKILL.md" 
+        }).Count
+        Write-Check "Skills found" ($skillCount -gt 0) "$skillCount skills"
+    }
+} else {
+    Write-Host "  [i] Using GitHub as skill source (default)" -ForegroundColor Cyan
+    Write-Host "      Skills will be cloned from: https://github.com/RafaelGorski/Problem-Based-SRS" -ForegroundColor Gray
+    Write-Host "      Set SKILL_DIR env var to use local folder instead" -ForegroundColor Gray
 }
 
 # Check test files

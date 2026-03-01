@@ -9,8 +9,8 @@
 .PARAMETER Workflow
     Run a specific workflow test (full, validation, quick)
 
-.PARAMETER SkillSource
-    Use 'local' or 'github' skills
+.PARAMETER SkillDir
+    Path to local skills folder (if set, uses local instead of GitHub)
 
 .PARAMETER Timeout
     Timeout in seconds for each skill invocation (default: 120)
@@ -27,16 +27,15 @@
     # Runs quick validation with verbose output
 
 .EXAMPLE
-    .\run-e2e-tests.ps1 -SkillSource github
-    # Uses skills from GitHub repository
+    .\run-e2e-tests.ps1 -SkillDir C:\work\Problem-Based-SRS
+    # Uses skills from local folder instead of GitHub
 #>
 
 param(
     [ValidateSet('full', 'validation', 'quick', '')]
     [string]$Workflow = '',
     
-    [ValidateSet('local', 'github')]
-    [string]$SkillSource = 'local',
+    [string]$SkillDir = '',
     
     [int]$Timeout = 120,
     
@@ -64,8 +63,17 @@ function Get-TestConfig {
     } catch {
         $config.CopilotVersion = 'Not installed'
     }
-    $config.SkillSource = $SkillSource
-    $config.SkillDir = if ($env:SKILL_DIR) { $env:SKILL_DIR } else { 'C:\work\Problem-Based-SRS' }
+    # Skill source - default is GitHub, local if SkillDir is set
+    if ($SkillDir) {
+        $config.SkillSource = 'local'
+        $config.SkillDir = $SkillDir
+    } elseif ($env:SKILL_DIR) {
+        $config.SkillSource = 'local'
+        $config.SkillDir = $env:SKILL_DIR
+    } else {
+        $config.SkillSource = 'github'
+        $config.SkillDir = 'https://github.com/RafaelGorski/Problem-Based-SRS (cloned to temp)'
+    }
     $config.Model = if ($env:COPILOT_MODEL) { $env:COPILOT_MODEL } else { 'gpt-5' }
     $config.PytestVersion = (python -c "import pytest; print(pytest.__version__)" 2>&1)
     $config.AsyncioVersion = (python -c "import pytest_asyncio; print(pytest_asyncio.__version__)" 2>&1)
@@ -95,8 +103,15 @@ Write-Host "  pytest-xdist:   $($config.XdistVersion)" -ForegroundColor Gray
 Write-Host "  Timeout:        ${Timeout}s" -ForegroundColor Gray
 Write-Host ""
 
-# Set environment
-$env:SKILL_SOURCE = $SkillSource
+# Set environment - only set SKILL_DIR if local folder specified
+if ($SkillDir) {
+    $env:SKILL_DIR = $SkillDir
+} elseif ($env:SKILL_DIR) {
+    # Keep existing env var
+} else {
+    # Clear to ensure GitHub default is used
+    Remove-Item Env:\SKILL_DIR -ErrorAction SilentlyContinue
+}
 $env:PYTHONPATH = "$ProjectRoot\scripts"
 
 # Define test groups
@@ -202,7 +217,9 @@ try {
     $pinfo.CreateNoWindow = $true
     $pinfo.WorkingDirectory = $ProjectRoot
     $pinfo.EnvironmentVariables["PYTHONPATH"] = "$ProjectRoot\scripts"
-    $pinfo.EnvironmentVariables["SKILL_SOURCE"] = $SkillSource
+    if ($SkillDir) {
+        $pinfo.EnvironmentVariables["SKILL_DIR"] = $SkillDir
+    }
     
     $process = New-Object System.Diagnostics.Process
     $process.StartInfo = $pinfo
