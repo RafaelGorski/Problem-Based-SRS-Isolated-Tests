@@ -15,14 +15,40 @@ from copilot_client import SkillTestClient
 from fixtures import SAMPLE_CONTEXTS, SAMPLE_CPS, SAMPLE_CNS, SAMPLE_SOFTWARE_GLANCE
 from skill_loader import SkillLoader
 
+# Module-level loader to ensure single clone for all tests
+_skill_loader: SkillLoader | None = None
 
-@pytest.fixture(scope="module")
+
+def pytest_configure(config):
+    """Print skill source info at test session start."""
+    global _skill_loader
+    _skill_loader = SkillLoader()
+    _skill_loader.load()
+    
+    # Print skill source info
+    source_type = "local" if _skill_loader.use_local else "github"
+    print(f"\n[Skills] Source: {source_type}")
+    print(f"[Skills] Path: {_skill_loader.skill_dir}")
+    if not _skill_loader.use_local:
+        print(f"[Skills] Cloned from: {_skill_loader.source}")
+
+
+def pytest_unconfigure(config):
+    """Cleanup skill loader at session end."""
+    global _skill_loader
+    if _skill_loader:
+        _skill_loader.cleanup()
+        _skill_loader = None
+
+
+@pytest.fixture(scope="session")
 def skill_loader():
-    """Provide a skill loader for the test module."""
-    loader = SkillLoader()
-    loader.load()
-    yield loader
-    loader.cleanup()
+    """Provide a skill loader for the test session."""
+    global _skill_loader
+    if _skill_loader is None:
+        _skill_loader = SkillLoader()
+        _skill_loader.load()
+    return _skill_loader
 
 
 @pytest.fixture
