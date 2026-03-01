@@ -25,15 +25,25 @@ SKILL_SOURCE=github pytest
 ruff check .
 ```
 
-## PowerShell helper scripts (in project root)
+## PowerShell helper scripts (primary entry point)
+
+**Engineers should use these scripts as the main entry point for running tests**, not raw pytest commands. The scripts handle environment setup, provide better output formatting, and support common workflows.
 
 ```powershell
-.\verify-setup.ps1                    # Check environment
+.\verify-setup.ps1                    # Check environment before first run
 .\run-unit-tests.ps1 -Parallel 4      # Run tests with 4 workers
 .\run-e2e-tests.ps1 -Workflow quick   # Quick validation
 .\test-skill.ps1 -Skill customer-problems -UseFixture inventory
 .\generate-report.ps1 -Format html    # Generate HTML report
 ```
+
+| Script | Purpose |
+|--------|---------|
+| `verify-setup.ps1` | Validates Python, Copilot CLI, and dependencies are configured |
+| `run-unit-tests.ps1` | Runs pytest with filtering, parallel execution, and formatted output |
+| `run-e2e-tests.ps1` | Runs end-to-end workflow tests (quick or full) |
+| `test-skill.ps1` | Interactively tests a single skill with fixtures or custom context |
+| `generate-report.ps1` | Generates test reports (console, JUnit XML, or HTML) |
 
 ## High-level architecture
 
