@@ -1,0 +1,66 @@
+# Copilot Instructions
+
+## Build, test, and lint commands
+
+```bash
+# Install dependencies
+pip install -e ".[dev]"
+
+# Run all tests
+pytest
+
+# Run tests in parallel (4 workers)
+pytest -n 4
+
+# Run single test file
+pytest tests/test_customer_problems.py -v
+
+# Run specific test
+pytest tests/test_customer_problems.py::TestCustomerProblemsSkill::test_cp_generates_structured_notation -v
+
+# Run with GitHub skills instead of local
+SKILL_SOURCE=github pytest
+
+# Lint
+ruff check .
+```
+
+## PowerShell helper scripts (in project root)
+
+```powershell
+.\verify-setup.ps1                    # Check environment
+.\run-unit-tests.ps1 -Parallel 4      # Run tests with 4 workers
+.\run-e2e-tests.ps1 -Workflow quick   # Quick validation
+.\test-skill.ps1 -Skill customer-problems -UseFixture inventory
+.\generate-report.ps1 -Format html    # Generate HTML report
+```
+
+## High-level architecture
+
+This is a black-box test suite for Problem-Based SRS agent skills using the GitHub Copilot SDK.
+
+```
+*.ps1                         # PowerShell helper scripts (first-class artifacts)
+scripts/                      # Python modules
+  copilot_client.py           # CopilotClient wrapper with SkillResult class
+  skill_loader.py             # Load skills from local path or GitHub
+  fixtures.py                 # Test data (business contexts, expected patterns)
+tests/                        # pytest test suites
+  conftest.py                 # Shared fixtures (copilot_client, skill_loader)
+  test_*.py                   # One file per skill under test
+```
+
+**Key classes:**
+- `SkillTestClient` (copilot_client.py): Wraps CopilotClient for skill invocation
+- `SkillResult`: Contains response content with pattern-matching helpers
+- `SkillLoader` (skill_loader.py): Loads skills from local path or clones from GitHub
+
+## Key conventions
+
+- **Black-box only**: Tests validate skill outputs via pattern matching, not internal logic.
+- **No skill modification**: Skills in `C:\work\Problem-Based-SRS` are read-only.
+- **Parallel execution**: Use `-n N` or `-Parallel N` for parallel test execution with pytest-xdist.
+- **Pattern validation**: Use `SkillResult.contains_pattern()` for flexible output matching.
+- **Async tests**: All skill tests are async using pytest-asyncio.
+- **Fixtures in scripts/**: Keep test data in `fixtures.py` for reuse across tests.
+- **Environment config**: Use `SKILL_SOURCE`, `SKILL_DIR`, `SKILL_REPO` env vars for skill loading.
