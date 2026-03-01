@@ -6,7 +6,7 @@
 # Install dependencies
 pip install -e ".[dev]"
 
-# Run all tests
+# Run all tests (clones skills from GitHub by default)
 pytest
 
 # Run tests in parallel (4 workers)
@@ -18,8 +18,8 @@ pytest tests/test_customer_problems.py -v
 # Run specific test
 pytest tests/test_customer_problems.py::TestCustomerProblemsSkill::test_cp_generates_structured_notation -v
 
-# Run with GitHub skills instead of local
-SKILL_SOURCE=github pytest
+# Use local skills folder instead of GitHub
+SKILL_DIR=C:\work\Problem-Based-SRS pytest
 
 # Lint
 ruff check .
@@ -68,9 +68,9 @@ tests/                        # pytest test suites
 ## Key conventions
 
 - **Black-box only**: Tests validate skill outputs via pattern matching, not internal logic.
-- **No skill modification**: Skills in `C:\work\Problem-Based-SRS` are read-only.
+- **GitHub by default**: Skills are cloned from GitHub to ensure latest version. Set `SKILL_DIR` for local dev.
 - **Parallel execution**: Use `-n N` or `-Parallel N` for parallel test execution with pytest-xdist.
 - **Pattern validation**: Use `SkillResult.contains_pattern()` for flexible output matching.
 - **Async tests**: All skill tests are async using pytest-asyncio.
 - **Fixtures in scripts/**: Keep test data in `fixtures.py` for reuse across tests.
-- **Environment config**: Use `SKILL_SOURCE`, `SKILL_DIR`, `SKILL_REPO` env vars for skill loading.
+- **Environment config**: Set `SKILL_DIR` to use local skills, or `SKILL_REPO` to use a different GitHub repo.

@@ -1,8 +1,12 @@
 """Skill loader for Problem-Based SRS skills.
 
 Supports loading skills from:
-1. Local file system (for development/iteration)
-2. GitHub repository (for CI/CD and final testing)
+1. GitHub repository (default - ensures latest version)
+2. Local file system (override via SKILL_DIR for development)
+
+By default, skills are cloned from GitHub to a temporary folder at test
+setup time to ensure we're always testing against the latest published version.
+Set SKILL_DIR environment variable to point to a local folder for development.
 """
 
 from __future__ import annotations
@@ -14,8 +18,7 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
-# Default paths
-DEFAULT_LOCAL_PATH = r"C:\work\Problem-Based-SRS"
+# Default GitHub repository (always used unless SKILL_DIR is set)
 DEFAULT_GITHUB_REPO = "https://github.com/RafaelGorski/Problem-Based-SRS"
 
 # Skills available in the repository
@@ -44,7 +47,11 @@ class SkillInfo:
 
 
 class SkillLoader:
-    """Load skills from local or remote sources."""
+    """Load skills from GitHub or local path.
+    
+    Default behavior: Clone from GitHub to ensure latest version.
+    Override: Set SKILL_DIR env var to use a local folder instead.
+    """
 
     def __init__(
         self,
@@ -56,16 +63,23 @@ class SkillLoader:
         Args:
             source: Path or URL to skills. If None, uses environment.
             use_local: If True, use local path. If False, clone from GitHub.
-                      If None, determined by SKILL_SOURCE env var.
+                      If None, auto-detected: uses local if SKILL_DIR is set,
+                      otherwise clones from GitHub (default).
         """
-        # Determine source from environment if not specified
+        # Check if SKILL_DIR is set - if so, use local mode
+        local_dir = os.environ.get("SKILL_DIR")
+        
         if use_local is None:
-            env_source = os.environ.get("SKILL_SOURCE", "local")
-            use_local = env_source.lower() == "local"
+            # Default: use GitHub unless SKILL_DIR is explicitly set
+            use_local = local_dir is not None
 
         if source is None:
             if use_local:
-                source = os.environ.get("SKILL_DIR", DEFAULT_LOCAL_PATH)
+                if local_dir is None:
+                    raise ValueError(
+                        "use_local=True but SKILL_DIR environment variable is not set"
+                    )
+                source = local_dir
             else:
                 source = os.environ.get("SKILL_REPO", DEFAULT_GITHUB_REPO)
 
@@ -224,9 +238,11 @@ def get_default_skill_loader() -> SkillLoader:
     """Get a skill loader configured from environment.
 
     Environment variables:
-        SKILL_SOURCE: "local" or "github" (default: "local")
-        SKILL_DIR: Local path (default: C:\\work\\Problem-Based-SRS)
+        SKILL_DIR: Local path to skills (if set, uses local instead of GitHub)
         SKILL_REPO: GitHub URL (default: RafaelGorski/Problem-Based-SRS)
+
+    By default, skills are cloned from GitHub to ensure the latest version.
+    Set SKILL_DIR to use a local folder for development/offline testing.
 
     Returns:
         Configured SkillLoader instance.

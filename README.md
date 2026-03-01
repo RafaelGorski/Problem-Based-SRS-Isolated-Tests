@@ -97,7 +97,7 @@ pip install -e ".[dev]"
 ### Running Tests
 
 ```bash
-# Run all tests (uses local skills by default)
+# Run all tests (clones skills from GitHub by default)
 pytest
 
 # Run specific skill tests
@@ -106,17 +106,19 @@ pytest tests/test_customer_problems.py -v
 # Run single test
 pytest tests/test_customer_problems.py::TestCustomerProblemsSkill::test_cp_generates_structured_notation -v
 
-# Use GitHub repository instead of local
-SKILL_SOURCE=github pytest
+# Use local skills folder instead
+SKILL_DIR=C:\work\Problem-Based-SRS pytest
 ```
 
 ### Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `SKILL_SOURCE` | `local` | `local` or `github` |
-| `SKILL_DIR` | `C:\work\Problem-Based-SRS` | Path to local skills |
+| `SKILL_DIR` | *(unset)* | Local path to skills. If set, uses local folder instead of GitHub |
 | `SKILL_REPO` | `https://github.com/RafaelGorski/Problem-Based-SRS` | GitHub repository URL |
+
+**Default behavior:** Skills are cloned from GitHub to a temp folder at test setup to ensure latest version.  
+**Override:** Set `SKILL_DIR=/path/to/local/skills` to use a local folder for development.
 
 ## How to Run and Check Results
 
@@ -257,12 +259,10 @@ asyncio.run(debug_skill())
 
 ### CI/CD Integration
 
-For GitHub Actions:
+For GitHub Actions (uses GitHub by default, no env vars needed):
 
 ```yaml
 - name: Run Tests
-  env:
-    SKILL_SOURCE: github
   run: |
     pip install -e ".[dev]"
     pytest --junitxml=results.xml -v
