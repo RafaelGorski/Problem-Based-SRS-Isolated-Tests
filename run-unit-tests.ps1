@@ -319,6 +319,10 @@ try {
         elseif ($line -match 'created:\s*\d+/\d+\s*workers') {
             Write-Host $line -ForegroundColor Cyan
         }
+        # Show skill source info from pytest
+        elseif ($line -match '^\[Skills\]') {
+            Write-Host $line -ForegroundColor Cyan
+        }
         # Show errors/failures detail
         elseif ($line -match '^(FAILURES|ERRORS|=====)') {
             Write-Host $line -ForegroundColor Red
