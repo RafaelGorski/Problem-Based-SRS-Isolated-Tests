@@ -18,6 +18,9 @@ dependencies = [
 dev = [
     "ruff>=0.8.0",
     "pytest-html>=4.0",
+    "coverage>=7.4",
+    "pytest-cov>=4.1",
+    "mutmut>=2.4",
 ]
 
 [build-system]
@@ -41,3 +44,24 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W"]
+
+[tool.coverage.run]
+source = ["scripts", "tests"]
+branch = true
+omit = ["*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]
+show_missing = true
+precision = 2
+
+[tool.coverage.html]
+directory = "reports/coverage"
+
+[tool.mutmut]
+paths_to_mutate = ["scripts/copilot_client.py", "scripts/fixtures.py", "scripts/skill_loader.py"]
+tests_dir = ["tests/"]

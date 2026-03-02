@@ -38,6 +38,9 @@ env/
 htmlcov/
 .tox/
 .nox/
+.mutmut-cache/
+mutants/
+reports/
 
 # Reports
 *.xml

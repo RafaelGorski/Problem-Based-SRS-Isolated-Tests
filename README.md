@@ -5,6 +5,28 @@
 
 Black-box test suite for validating [Problem-Based SRS](https://github.com/RafaelGorski/Problem-Based-SRS) agent skills without modifying the skills themselves. Uses the [GitHub Copilot SDK](https://github.com/github/copilot-sdk) to invoke skills and validate outputs.
 
+## Quick Start
+
+| Command | What it does |
+|---------|--------------|
+| `.\run-all-tests.ps1` | Run **all 60 tests** once (default) |
+| `.\run-all-tests.ps1 -Unit` | Run unit tests only (excludes e2e) |
+| `.\run-all-tests.ps1 -E2E` | Run e2e tests only (`test_e2e_*.py`) |
+| `.\run-all-tests.ps1 -Quick` | Quick smoke test (3 key tests) |
+| `.\run-all-tests.ps1 -Full` | All tests + coverage + mutation |
+| `.\run-all-tests.ps1 -Coverage -Html` | Coverage analysis with HTML report |
+
+### Standalone Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `run-unit-tests.ps1` | Run tests with skill/test filtering |
+| `run-e2e-tests.ps1` | Run workflow-specific e2e tests |
+| `run-mutation-tests.ps1` | Coverage analysis + mutation discovery |
+| `verify-setup.ps1` | Check environment setup |
+| `test-skill.ps1` | Interactively test a single skill |
+| `generate-report.ps1` | Generate test reports |
+
 ## Architecture
 
 ```mermaid
@@ -320,6 +342,129 @@ Generate test reports:
 .\generate-report.ps1                        # Console output with durations
 .\generate-report.ps1 -Format junit          # JUnit XML for CI/CD
 .\generate-report.ps1 -Format html           # HTML report (opens in browser)
+```
+
+### run-mutation-tests.ps1
+Run mutation testing and coverage analysis:
+```powershell
+.\run-mutation-tests.ps1                     # Run coverage + mutation discovery
+.\run-mutation-tests.ps1 -Coverage           # Coverage analysis only
+.\run-mutation-tests.ps1 -Mutation           # Mutation discovery only
+.\run-mutation-tests.ps1 -Parallel 8         # Use 8 workers for coverage tests
+```
+
+> **Note**: Mutation testing uses WSL + mutmut for mutant generation. Since tests 
+> require the Windows-only Copilot SDK, mutation runs in **discovery mode** - 
+> identifying mutation points without executing tests. Use coverage analysis to 
+> verify test effectiveness.
+
+### run-all-tests.ps1
+Master test runner for all test types:
+```powershell
+.\run-all-tests.ps1                          # Unit + E2E tests
+.\run-all-tests.ps1 -Full                    # Everything including mutation
+.\run-all-tests.ps1 -Quick                   # Quick smoke tests
+.\run-all-tests.ps1 -Unit                    # Unit tests only
+.\run-all-tests.ps1 -E2E                     # E2E tests only
+.\run-all-tests.ps1 -Coverage                # Coverage analysis
+.\run-all-tests.ps1 -Full -Html              # Full suite with HTML reports
+.\run-all-tests.ps1 -FailFast                # Stop on first failure
+```
+
+## Mutation Testing & Coverage
+
+### Coverage Analysis
+
+Coverage analysis measures which lines of code are exercised by tests. Run with:
+
+```powershell
+.\run-mutation-tests.ps1 -Coverage           # Quick coverage report
+.\run-mutation-tests.ps1 -Coverage -Html     # HTML report with line-by-line details
+```
+
+Coverage includes both `scripts/` and `tests/` directories. Reports are saved to `reports/coverage/`.
+
+### Mutation Testing (Discovery Mode)
+
+Mutation testing identifies code changes that SHOULD cause test failures. The test suite uses **mutmut** via WSL to generate mutants.
+
+```powershell
+.\run-mutation-tests.ps1 -Mutation           # Generate mutation points
+```
+
+> **Why Discovery Mode?** The Copilot SDK only works on Windows, but mutmut requires
+> Linux/WSL. Mutation discovery identifies WHERE mutations could be applied, helping
+> you understand which code paths need better test coverage.
+
+#### WSL Setup (Required for Mutation Testing)
+
+```bash
+wsl -d Ubuntu bash
+sudo apt-get update && sudo apt-get install -y python3-pip
+pip3 install mutmut --break-system-packages
+exit
+```
+
+### Quick Start
+
+```powershell
+# Run full coverage + mutation analysis
+.\run-mutation-tests.ps1
+
+# Coverage only (faster)
+.\run-mutation-tests.ps1 -Coverage -Parallel 8
+```
+
+### Understanding Coverage Results
+
+Coverage reports show which lines are executed during tests:
+
+| Metric | Target |
+|--------|--------|
+| Statement coverage | > 60% |
+| Branch coverage | > 50% |
+| Missing lines | Listed in report |
+
+### What Gets Analyzed
+
+| Directory | Contents |
+|-----------|----------|
+| `scripts/` | Core modules (copilot_client, skill_loader, fixtures) |
+| `tests/` | Test files themselves |
+
+### Mutation Points Report
+
+When running `-Mutation`, a JSON report is generated:
+
+```json
+{
+  "total_mutations": 297,
+  "files": {
+    "skill_loader": 191,
+    "copilot_client": 100,
+    "fixtures": 6
+  },
+  "note": "Discovery mode - mutants identified but not tested"
+}
+```
+
+Higher mutation counts indicate more complex code that should have thorough test coverage.
+
+### Coverage Report
+
+```powershell
+.\run-mutation-tests.ps1 -Coverage -Html
+# Opens reports/coverage/index.html
+```
+
+### CI/CD Integration
+
+```yaml
+- name: Run Mutation Tests
+  run: |
+    pip install -e ".[dev]"
+    python -m mutmut run --paths-to-mutate=scripts/
+    python -m mutmut results
 ```
 
 ## Technical Decisions & Tradeoffs

@@ -158,12 +158,12 @@ if ($FailFast) {
     $pytestArgs += "-x"
 }
 
-# Add parallel execution - default to auto (uses CPU count) unless -Sequential is specified
+# Add parallel execution - default to auto (uses all CPU cores) unless -Sequential is specified
 if (-not $Sequential) {
     $numWorkers = if ($Workers -gt 0) { $Workers } elseif ($Parallel -gt 0) { $Parallel } else { 0 }
     if ($numWorkers -eq 0) {
-        # Default to auto-detect workers based on CPU count
-        $numWorkers = [Math]::Max(2, [int]([Environment]::ProcessorCount / 2))
+        # Use all available cores for maximum parallelism
+        $numWorkers = [Environment]::ProcessorCount
     }
     Write-Host "Parallel workers: $numWorkers" -ForegroundColor Yellow
     $pytestArgs += "-n"

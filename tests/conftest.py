@@ -12,7 +12,22 @@ scripts_dir = Path(__file__).parent.parent / "scripts"
 sys.path.insert(0, str(scripts_dir))
 
 from copilot_client import SkillTestClient
-from fixtures import SAMPLE_CONTEXTS, SAMPLE_CPS, SAMPLE_CNS, SAMPLE_SOFTWARE_GLANCE
+from fixtures import (
+    SAMPLE_CONTEXTS,
+    SAMPLE_CPS,
+    SAMPLE_CNS,
+    SAMPLE_SOFTWARE_GLANCE,
+    CRM_CONTEXT,
+    CRM_CUSTOMER_PROBLEMS,
+    CRM_SOFTWARE_GLANCE,
+    CRM_CUSTOMER_NEEDS,
+    CRM_FUNCTIONAL_REQUIREMENTS,
+    MICROER_CONTEXT,
+    MICROER_CUSTOMER_PROBLEMS,
+    MICROER_SOFTWARE_GLANCE,
+    MICROER_CUSTOMER_NEEDS,
+    MICROER_FUNCTIONAL_REQUIREMENTS,
+)
 from skill_loader import SkillLoader
 
 # Module-level loader to ensure single clone for all tests
@@ -100,3 +115,73 @@ def sample_cns() -> str:
 def sample_software_glance() -> str:
     """Get sample Software Glance for multi-step testing."""
     return SAMPLE_SOFTWARE_GLANCE
+
+
+# =====================================================================
+# CRM Example Fixtures (from dissertation crm-example.md)
+# =====================================================================
+
+
+@pytest.fixture
+def crm_full_context() -> str:
+    """Get the full CRM business context from dissertation example."""
+    return CRM_CONTEXT
+
+
+@pytest.fixture
+def crm_customer_problems() -> str:
+    """Get CRM Customer Problems from dissertation example."""
+    return CRM_CUSTOMER_PROBLEMS
+
+
+@pytest.fixture
+def crm_software_glance() -> str:
+    """Get CRM Software Glance from dissertation example."""
+    return CRM_SOFTWARE_GLANCE
+
+
+@pytest.fixture
+def crm_customer_needs() -> str:
+    """Get CRM Customer Needs from dissertation example."""
+    return CRM_CUSTOMER_NEEDS
+
+
+@pytest.fixture
+def crm_functional_requirements() -> str:
+    """Get CRM Functional Requirements from dissertation example."""
+    return CRM_FUNCTIONAL_REQUIREMENTS
+
+
+# =====================================================================
+# MicroER Example Fixtures (from dissertation microer-example.md)
+# =====================================================================
+
+
+@pytest.fixture
+def microer_context() -> str:
+    """Get the MicroER business context from dissertation example."""
+    return MICROER_CONTEXT
+
+
+@pytest.fixture
+def microer_customer_problems() -> str:
+    """Get MicroER Customer Problems from dissertation example."""
+    return MICROER_CUSTOMER_PROBLEMS
+
+
+@pytest.fixture
+def microer_software_glance() -> str:
+    """Get MicroER Software Glance from dissertation example."""
+    return MICROER_SOFTWARE_GLANCE
+
+
+@pytest.fixture
+def microer_customer_needs() -> str:
+    """Get MicroER Customer Needs from dissertation example."""
+    return MICROER_CUSTOMER_NEEDS
+
+
+@pytest.fixture
+def microer_functional_requirements() -> str:
+    """Get MicroER Functional Requirements from dissertation example."""
+    return MICROER_FUNCTIONAL_REQUIREMENTS

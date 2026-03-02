@@ -1,5 +1,16 @@
 # Copilot Instructions
 
+## Quick Reference - Test Commands
+
+| Command | What it does |
+|---------|--------------|
+| `.\run-all-tests.ps1` | Run **all 60 tests** once (default) |
+| `.\run-all-tests.ps1 -Unit` | Run unit tests only (excludes e2e) |
+| `.\run-all-tests.ps1 -E2E` | Run e2e tests only (`test_e2e_*.py`) |
+| `.\run-all-tests.ps1 -Quick` | Quick smoke test (3 key tests) |
+| `.\run-all-tests.ps1 -Full` | All tests + coverage + mutation |
+| `.\run-all-tests.ps1 -Coverage -Html` | Coverage analysis with HTML report |
+
 ## Build, test, and lint commands
 
 ```bash
@@ -30,20 +41,26 @@ ruff check .
 **Engineers should use these scripts as the main entry point for running tests**, not raw pytest commands. The scripts handle environment setup, provide better output formatting, and support common workflows.
 
 ```powershell
+.\run-all-tests.ps1                   # Run ALL tests once (default)
+.\run-all-tests.ps1 -Full             # All tests + coverage + mutation
+.\run-all-tests.ps1 -Unit             # Unit tests only (excludes e2e)
+.\run-all-tests.ps1 -E2E              # E2E tests only
+.\run-all-tests.ps1 -Quick            # Quick smoke test (3 tests)
+.\run-all-tests.ps1 -Coverage -Html   # Coverage with HTML report
 .\verify-setup.ps1                    # Check environment before first run
-.\run-unit-tests.ps1 -Parallel 4      # Run tests with 4 workers
-.\run-e2e-tests.ps1 -Workflow quick   # Quick validation
-.\test-skill.ps1 -Skill customer-problems -UseFixture inventory
-.\generate-report.ps1 -Format html    # Generate HTML report
 ```
+
+### Standalone Scripts
 
 | Script | Purpose |
 |--------|---------|
-| `verify-setup.ps1` | Validates Python, Copilot CLI, and dependencies are configured |
-| `run-unit-tests.ps1` | Runs pytest with filtering, parallel execution, and formatted output |
-| `run-e2e-tests.ps1` | Runs end-to-end workflow tests (quick or full) |
-| `test-skill.ps1` | Interactively tests a single skill with fixtures or custom context |
-| `generate-report.ps1` | Generates test reports (console, JUnit XML, or HTML) |
+| `run-all-tests.ps1` | **Master runner** - run all tests, coverage, mutation |
+| `run-unit-tests.ps1` | Run tests with skill/test name filtering |
+| `run-e2e-tests.ps1` | Run workflow-specific e2e tests (crm, microer) |
+| `run-mutation-tests.ps1` | Coverage analysis + mutation discovery via WSL |
+| `verify-setup.ps1` | Validates Python, Copilot CLI, and dependencies |
+| `test-skill.ps1` | Interactively tests a single skill with fixtures |
+| `generate-report.ps1` | Generates test reports (console, JUnit XML, HTML) |
 
 ## High-level architecture
 

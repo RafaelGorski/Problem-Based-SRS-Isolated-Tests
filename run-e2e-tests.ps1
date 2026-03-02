@@ -7,7 +7,12 @@
     simulating real user workflows through the 5-step methodology.
 
 .PARAMETER Workflow
-    Run a specific workflow test (full, validation, quick)
+    Run a specific workflow test:
+    - full: Core methodology workflow tests
+    - validation: Zigzag traceability validation tests
+    - quick: Quick smoke tests for basic notation
+    - crm: CRM example workflow (dissertation case study)
+    - microer: MicroER renewable energy workflow (dissertation case study)
 
 .PARAMETER SkillDir
     Path to local skills folder (if set, uses local instead of GitHub)
@@ -27,12 +32,20 @@
     # Runs quick validation with verbose output
 
 .EXAMPLE
+    .\run-e2e-tests.ps1 -Workflow crm
+    # Runs CRM example workflow tests
+
+.EXAMPLE
+    .\run-e2e-tests.ps1 -Workflow microer
+    # Runs MicroER renewable energy workflow tests
+
+.EXAMPLE
     .\run-e2e-tests.ps1 -SkillDir C:\work\Problem-Based-SRS
     # Uses skills from local folder instead of GitHub
 #>
 
 param(
-    [ValidateSet('full', 'validation', 'quick', '')]
+    [ValidateSet('full', 'validation', 'quick', 'crm', 'microer', '')]
     [string]$Workflow = '',
     
     [string]$SkillDir = '',
@@ -123,7 +136,9 @@ $quickTests = @(
 
 $validationTests = @(
     "test_zigzag_validates_traceability",
-    "test_zigzag_identifies_validation_status"
+    "test_zigzag_identifies_validation_status",
+    "test_crm_zigzag_validation",
+    "test_microer_zigzag_validation"
 )
 
 $fullWorkflowTests = @(
@@ -136,11 +151,40 @@ $fullWorkflowTests = @(
     "test_zigzag_validates_traceability"
 )
 
+# Real-world example workflows from dissertation
+$crmWorkflowTests = @(
+    "test_crm_step1_customer_problems",
+    "test_crm_step2_software_glance",
+    "test_crm_step3_customer_needs",
+    "test_crm_step4_software_vision",
+    "test_crm_step5_functional_requirements",
+    "test_crm_zigzag_validation",
+    "test_crm_cp_decomposition",
+    "test_crm_information_outcome_dominant",
+    "test_crm_shared_fr_traceability"
+)
+
+$microerWorkflowTests = @(
+    "test_microer_step1_customer_problems",
+    "test_microer_step2_software_glance",
+    "test_microer_step3_customer_needs",
+    "test_microer_step4_software_vision",
+    "test_microer_step5_functional_requirements",
+    "test_microer_zigzag_validation",
+    "test_microer_deep_decomposition",
+    "test_microer_control_outcome_class",
+    "test_microer_hope_class_problems",
+    "test_microer_hardware_integration",
+    "test_microer_real_time_requirements"
+)
+
 # Select tests based on workflow
 $selectedTests = switch ($Workflow) {
     'quick' { $quickTests }
     'validation' { $validationTests }
     'full' { $fullWorkflowTests }
+    'crm' { $crmWorkflowTests }
+    'microer' { $microerWorkflowTests }
     default { @() }  # Run all
 }
 
@@ -164,7 +208,8 @@ if ($Verbose) {
 if (-not $Sequential) {
     $numWorkers = if ($Workers -gt 0) { $Workers } elseif ($Parallel -gt 0) { $Parallel } else { 0 }
     if ($numWorkers -eq 0) {
-        $numWorkers = [Math]::Max(2, [int]([Environment]::ProcessorCount / 2))
+        # Use all available cores for maximum parallelism
+        $numWorkers = [Environment]::ProcessorCount
     }
     Write-Host "Parallel workers: $numWorkers" -ForegroundColor Yellow
     $pytestArgs += "-n"

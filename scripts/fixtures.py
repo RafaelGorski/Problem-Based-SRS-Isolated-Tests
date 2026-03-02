@@ -224,3 +224,181 @@ The inventory system will provide a web interface for warehouse staff to manage 
 | Manager Dashboard | Web | Warehouse Manager | Reports and analytics |
 | ERP Integration | API | ERP System | Order synchronization |
 """
+
+
+# =====================================================================
+# Real-world example: CRM System (from crm-example.md)
+# =====================================================================
+CRM_CONTEXT = """
+The company has difficulties maintaining an effective relationship with its customers.
+They believe a CRM (Customer Relationship Management) software system can help reduce
+these difficulties.
+
+Current situation:
+- The company risks losing customers due to lack of communication channels
+- Customer feedback is not systematically analyzed for planning
+- Customers expect responses to their feedback but often don't receive them
+- Sales strategies are not aligned with customer behavior patterns
+- Sales projections are not available, leading to missed opportunities
+"""
+
+CRM_CUSTOMER_PROBLEMS = """
+## Customer Problems
+
+| ID | Statement | Class |
+|----|-----------|-------|
+| CP.1 | The company must ensure the existence of a communication channel with all customers, otherwise it risks losing customers, affecting marketing, promotions, feedback, and future sales. | Obligation |
+| CP.1.1 | The company must ensure it can contact all of its customers. | Obligation |
+| CP.1.2 | The company must ensure each customer is contacted regularly. | Obligation |
+| CP.2 | The company must consider customer feedback statistics in planning, otherwise it creates customer dissatisfaction and loses market share. | Obligation |
+| CP.3 | Customers expect the company to respond to their feedback, otherwise they become frustrated and company reputation decreases. | Expectation |
+| CP.4 | The company must align sales strategies with customer behavior, otherwise it misses sales opportunities. | Obligation |
+| CP.5 | The company must project sales, otherwise it loses opportunities and makes inadequate provisions. | Obligation |
+"""
+
+CRM_SOFTWARE_GLANCE = """
+## Software Glance: CRM System
+
+### Description
+CRM software will interact with customers through a web interface for marketing campaigns,
+feedback collection, and responses. It will provide local interfaces for the Manager to
+view statistics and reports. The system stores customer data, feedback, and sales history
+in a database and includes a LAN interface to the Sales Management software.
+
+### System Boundary
+
+**Actors:**
+- Customers: Submit feedback, receive campaigns
+- Manager: View statistics, generate reports
+- Marketing Team: Execute campaigns
+
+**External Systems:**
+- Sales Management: Sales data and forecasts
+
+### Interfaces
+| Interface | Type | Connected To | Purpose |
+|-----------|------|--------------|---------|
+| Customer Portal | Web | Customers | Feedback and campaigns |
+| Manager Dashboard | Local | Manager | Statistics and reports |
+| Sales Integration | LAN | Sales Management | Sales data sync |
+"""
+
+CRM_CUSTOMER_NEEDS = """
+## Customer Needs
+
+| ID | Statement | Outcome Class | Traces To |
+|----|-----------|---------------|-----------|
+| CN.1 | The company needs a CRM software to know who its customers are and have updated contact information. | Information | CP.1.1 |
+| CN.2 | The company needs a CRM software to be aware of when each customer was last contacted. | Information | CP.1.2 |
+| CN.3 | The company needs a CRM software to know customer feedback statistics monthly. | Information | CP.2 |
+| CN.4 | The company needs a CRM software to allow responding to customer feedback. | Construction | CP.3 |
+| CN.5 | The company needs a CRM software to know customer behavior patterns. | Information | CP.4 |
+| CN.6 | The company needs a CRM software to know projected sales forecasts quarterly. | Information | CP.5 |
+"""
+
+CRM_FUNCTIONAL_REQUIREMENTS = """
+## Functional Requirements
+
+| ID | Statement | Traces To |
+|----|-----------|-----------|
+| FR.1 | The CRM shall store and display customer contact information including name, email, phone, and address. | CN.1 |
+| FR.2 | The CRM shall record the date of last contact for each customer. | CN.2 |
+| FR.3 | The CRM shall display customers not contacted within a configurable period. | CN.2 |
+| FR.4 | The CRM shall calculate and display feedback statistics by category monthly. | CN.3 |
+| FR.5 | The CRM shall allow users to compose and send responses to customer feedback. | CN.4 |
+| FR.6 | The CRM shall analyze and display customer purchase behavior patterns. | CN.5 |
+| FR.7 | The CRM shall generate quarterly sales forecasts based on historical data. | CN.6 |
+| FR.8 | The CRM shall send marketing campaigns to selected customer segments. | CN.1, CN.2 |
+"""
+
+
+# =====================================================================
+# Real-world example: MicroER - Renewable Energy System (from microer-example.md)
+# =====================================================================
+MICROER_CONTEXT = """
+A residential end user is concerned about rational energy use and has invested in a
+renewable energy microgeneration unit with solar and wind sources. The user wants to:
+- Reduce overall energy consumption
+- Minimize environmental impact
+- Adapt consumption patterns to energy availability
+- Monitor system efficiency
+"""
+
+MICROER_CUSTOMER_PROBLEMS = """
+## Customer Problems
+
+| ID | Statement | Class |
+|----|-----------|-------|
+| CP.1 | The customer intends to reduce energy consumption to lower costs using a renewable microgeneration system based on solar and wind sources. | Obligation |
+| CP.1.1 | The customer must reduce unnecessary energy consumption to reduce costs. | Obligation |
+| CP.1.2 | The customer must change consumption patterns, otherwise unable to reduce consumption. | Obligation |
+| CP.1.3 | The customer must monitor consumption patterns, otherwise unable to optimize usage. | Obligation |
+| CP.1.4 | The customer must ensure generating unit efficiency, otherwise must consume from public grid. | Obligation |
+| CP.1.5 | The customer must ensure maintenance status of generating unit, otherwise malfunction occurs. | Obligation |
+| CP.2 | The customer intends to contribute to minimizing environmental impacts of public energy sources. | Hope |
+| CP.2.1 | The customer must be aware of the environmental impact of their consumption. | Expectation |
+| CP.2.2 | The customer intends to rationalize energy use. | Hope |
+| CP.3 | The customer intends to contribute to reducing consumption pressure on regional/national energy matrix. | Hope |
+| CP.4 | The customer intends to influence others toward energy and environmental causes. | Hope |
+"""
+
+MICROER_SOFTWARE_GLANCE = """
+## Software Glance: MicroER System
+
+### Description
+MicroER software will integrate with hardware components including sensors and controllers.
+It will provide a user interface for consumption monitoring and profile configuration.
+The system collects data from solar and wind sources, controls energy distribution
+based on user preferences, and displays efficiency and maintenance status.
+
+### System Boundary
+
+**Actors:**
+- Homeowner: Configure profiles, view consumption
+- Maintenance Tech: Monitor system health
+
+**External Systems:**
+- Solar Panel Sensors
+- Wind Turbine Sensors
+- Battery Management System
+- Home Automation (optional)
+
+### Interfaces
+| Interface | Type | Connected To | Purpose |
+|-----------|------|--------------|---------|
+| User Dashboard | Local | Homeowner | Monitoring and configuration |
+| Sensor Network | Hardware | Solar/Wind Sensors | Data collection |
+| Battery Controller | Hardware | Battery System | Storage management |
+| Home Integration | API | Home Automation | Load control |
+"""
+
+MICROER_CUSTOMER_NEEDS = """
+## Customer Needs
+
+| ID | Statement | Outcome Class | Traces To |
+|----|-----------|---------------|-----------|
+| CN.1 | The user needs MicroER to know current energy consumption in real-time. | Information | CP.1.1 |
+| CN.2 | The user needs MicroER to control energy distribution based on consumption profiles. | Control | CP.1.2 |
+| CN.3 | The user needs MicroER to know consumption patterns over time. | Information | CP.1.3 |
+| CN.4 | The user needs MicroER to know generating unit efficiency status. | Information | CP.1.4 |
+| CN.5 | The user needs MicroER to be aware of maintenance alerts. | Information | CP.1.5 |
+| CN.6 | The user needs MicroER to know environmental impact metrics. | Information | CP.2.1 |
+| CN.7 | The user needs MicroER to control load prioritization during low generation. | Control | CP.2.2 |
+| CN.8 | The user needs MicroER to create consumption profiles. | Construction | CP.1.2 |
+"""
+
+MICROER_FUNCTIONAL_REQUIREMENTS = """
+## Functional Requirements
+
+| ID | Statement | Traces To |
+|----|-----------|-----------|
+| FR.1 | MicroER shall display real-time energy consumption in watts and kilowatt-hours. | CN.1 |
+| FR.2 | MicroER shall allow users to define consumption profiles with load priorities. | CN.8 |
+| FR.3 | MicroER shall automatically adjust energy distribution based on active profile. | CN.2 |
+| FR.4 | MicroER shall display hourly, daily, weekly, and monthly consumption graphs. | CN.3 |
+| FR.5 | MicroER shall calculate and display generation efficiency percentage. | CN.4 |
+| FR.6 | MicroER shall generate maintenance alerts when efficiency drops below threshold. | CN.5 |
+| FR.7 | MicroER shall calculate and display CO₂ offset compared to grid consumption. | CN.6 |
+| FR.8 | MicroER shall reduce non-priority loads when generation falls below demand. | CN.7 |
+| FR.9 | MicroER shall log all consumption and generation data for historical analysis. | CN.3 |
+"""
