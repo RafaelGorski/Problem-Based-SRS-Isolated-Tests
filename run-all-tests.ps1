@@ -1,3 +1,4 @@
+# run-all-tests.ps1 v4.0 — Last changed: 2026-03-04T23:35:00Z
 <# 
 .SYNOPSIS
     Run all tests: unit, e2e, coverage, and mutation tests.
@@ -75,6 +76,14 @@ $ReportsDir = Join-Path $ProjectRoot "reports"
 if (-not (Test-Path $ReportsDir)) {
     New-Item -ItemType Directory -Path $ReportsDir | Out-Null
 }
+
+# --- Output capture: save ALL terminal output to a timestamped log file ---
+$runTimestamp = (Get-Date).ToString("yyyyMMdd_HHmmss")
+$transcriptLog = Join-Path $ReportsDir "test_run_${runTimestamp}.log"
+$transcriptLatest = Join-Path $ReportsDir "test_run_latest.log"
+Start-Transcript -Path $transcriptLog -Force | Out-Null
+Write-Host "run-all-tests.ps1 v4.0 (2026-03-04T23:35:00Z)"
+Write-Host "Transcript log: $transcriptLog"
 
 # Track results
 $results = @{
@@ -184,7 +193,7 @@ try {
         Write-Host "Command: $pytestCmd" -ForegroundColor Gray
         Write-Host ""
         
-        Invoke-Expression $pytestCmd
+        Invoke-Expression "$pytestCmd 2>&1" | Tee-Object -FilePath (Join-Path $ReportsDir "pytest_output_${runTimestamp}.log")
         $testExitCode = $LASTEXITCODE
         
         $testEnd = Get-Date
@@ -221,7 +230,7 @@ try {
             $coverageCmd += " -Html"
         }
         
-        Invoke-Expression $coverageCmd
+        Invoke-Expression "$coverageCmd 2>&1" | Tee-Object -Append -FilePath (Join-Path $ReportsDir "pytest_output_${runTimestamp}.log")
         $results.Coverage.ExitCode = $LASTEXITCODE
         
         $coverageEnd = Get-Date
@@ -243,7 +252,7 @@ try {
         
         $mutationCmd = ".\run-mutation-tests.ps1 -Mutation"
         
-        Invoke-Expression $mutationCmd
+        Invoke-Expression "$mutationCmd 2>&1" | Tee-Object -Append -FilePath (Join-Path $ReportsDir "pytest_output_${runTimestamp}.log")
         $results.Mutation.ExitCode = $LASTEXITCODE
         
         $mutationEnd = Get-Date
@@ -321,6 +330,25 @@ $summaryJson | Out-File -FilePath $summaryPath -Encoding UTF8
 
 Write-Host "Summary saved: $summaryPath" -ForegroundColor Gray
 Write-Host ""
+
+# --- Output file locations ---
+$pytestLog = Join-Path $ReportsDir "pytest_output_${runTimestamp}.log"
+Write-Host "============================== Generated Files ==============================" -ForegroundColor Cyan
+Write-Host "  Transcript (all output):  $transcriptLog" -ForegroundColor White
+Write-Host "  Pytest output:            $pytestLog" -ForegroundColor White
+Write-Host "  Test summary (JSON):      $summaryPath" -ForegroundColor White
+if (Test-Path (Join-Path $ReportsDir "coverage")) {
+    Write-Host "  Coverage HTML:            $(Join-Path $ReportsDir 'coverage\index.html')" -ForegroundColor White
+}
+if (Test-Path (Join-Path $ReportsDir "mutation")) {
+    Write-Host "  Mutation report:          $(Join-Path $ReportsDir 'mutation')" -ForegroundColor White
+}
+Write-Host "=============================================================================" -ForegroundColor Cyan
+Write-Host ""
+
+# Stop transcript and copy to latest
+Stop-Transcript | Out-Null
+Copy-Item -Path $transcriptLog -Destination $transcriptLatest -Force
 
 if ($allPassed) {
     Write-Host "✓ All tests passed!" -ForegroundColor Green
