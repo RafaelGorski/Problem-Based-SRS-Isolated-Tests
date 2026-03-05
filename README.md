@@ -10,11 +10,25 @@ Black-box test suite for validating [Problem-Based SRS](https://github.com/Rafae
 | Command | What it does |
 |---------|--------------|
 | `.\run-all-tests.ps1` | Run **all 60 tests** once (default) |
+| `.\run-all-tests.ps1 -Local C:\work\Problem-Based-SRS` | Run tests using **local** skills folder |
 | `.\run-all-tests.ps1 -Unit` | Run unit tests only (excludes e2e) |
 | `.\run-all-tests.ps1 -E2E` | Run e2e tests only (`test_e2e_*.py`) |
 | `.\run-all-tests.ps1 -Quick` | Quick smoke test (3 key tests) |
 | `.\run-all-tests.ps1 -Full` | All tests + coverage + mutation |
 | `.\run-all-tests.ps1 -Coverage -Html` | Coverage analysis with HTML report |
+
+### Using Local Skills (`-Local`)
+
+All helper scripts support `-Local <path>` to use a local skills folder instead of cloning from GitHub:
+
+```powershell
+.\run-all-tests.ps1 -Local C:\work\Problem-Based-SRS
+.\run-unit-tests.ps1 -Local C:\work\Problem-Based-SRS -Skill customer-problems
+.\run-e2e-tests.ps1 -Local C:\work\Problem-Based-SRS -Workflow crm
+.\test-skill.ps1 -Skill customer-problems -Local C:\work\Problem-Based-SRS
+```
+
+Without `-Local`, tests clone from GitHub (default behavior for CI/CD).
 
 ### Standalone Scripts
 

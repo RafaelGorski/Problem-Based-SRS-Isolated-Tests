@@ -14,6 +14,10 @@
     - crm: CRM example workflow (dissertation case study)
     - microer: MicroER renewable energy workflow (dissertation case study)
 
+.PARAMETER Local
+    Path to local skills folder. When set, uses local skills instead of cloning from GitHub.
+    Example: -Local C:\work\Problem-Based-SRS (alias for -SkillDir)
+
 .PARAMETER SkillDir
     Path to local skills folder (if set, uses local instead of GitHub)
 
@@ -40,6 +44,10 @@
     # Runs MicroER renewable energy workflow tests
 
 .EXAMPLE
+    .\run-e2e-tests.ps1 -Local C:\work\Problem-Based-SRS
+    # Uses skills from local folder instead of GitHub
+
+.EXAMPLE
     .\run-e2e-tests.ps1 -SkillDir C:\work\Problem-Based-SRS
     # Uses skills from local folder instead of GitHub
 #>
@@ -47,6 +55,8 @@
 param(
     [ValidateSet('full', 'validation', 'quick', 'crm', 'microer', '')]
     [string]$Workflow = '',
+    
+    [string]$Local = '',
     
     [string]$SkillDir = '',
     
@@ -96,6 +106,11 @@ function Get-TestConfig {
         $config.XdistVersion = 'Not installed'
     }
     return $config
+}
+
+# -Local takes precedence over -SkillDir
+if ($Local) {
+    $SkillDir = $Local
 }
 
 $config = Get-TestConfig

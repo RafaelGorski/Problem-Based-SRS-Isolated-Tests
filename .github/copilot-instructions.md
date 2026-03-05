@@ -5,6 +5,7 @@
 | Command | What it does |
 |---------|--------------|
 | `.\run-all-tests.ps1` | Run **all 60 tests** once (default) |
+| `.\run-all-tests.ps1 -Local C:\path` | Run tests using a **local** skills folder |
 | `.\run-all-tests.ps1 -Unit` | Run unit tests only (excludes e2e) |
 | `.\run-all-tests.ps1 -E2E` | Run e2e tests only (`test_e2e_*.py`) |
 | `.\run-all-tests.ps1 -Quick` | Quick smoke test (3 key tests) |
@@ -42,6 +43,7 @@ ruff check .
 
 ```powershell
 .\run-all-tests.ps1                   # Run ALL tests once (default)
+.\run-all-tests.ps1 -Local C:\work\Problem-Based-SRS  # Use local skills
 .\run-all-tests.ps1 -Full             # All tests + coverage + mutation
 .\run-all-tests.ps1 -Unit             # Unit tests only (excludes e2e)
 .\run-all-tests.ps1 -E2E              # E2E tests only
@@ -85,9 +87,9 @@ tests/                        # pytest test suites
 ## Key conventions
 
 - **Black-box only**: Tests validate skill outputs via pattern matching, not internal logic.
-- **GitHub by default**: Skills are cloned from GitHub to ensure latest version. Set `SKILL_DIR` for local dev.
+- **GitHub by default**: Skills are cloned from GitHub to ensure latest version. Use `-Local <path>` or set `SKILL_DIR` for local dev.
 - **Parallel execution**: Use `-n N` or `-Parallel N` for parallel test execution with pytest-xdist.
 - **Pattern validation**: Use `SkillResult.contains_pattern()` for flexible output matching.
 - **Async tests**: All skill tests are async using pytest-asyncio.
 - **Fixtures in scripts/**: Keep test data in `fixtures.py` for reuse across tests.
-- **Environment config**: Set `SKILL_DIR` to use local skills, or `SKILL_REPO` to use a different GitHub repo.
+- **Environment config**: Use `-Local <path>` on any script, or set `SKILL_DIR` env var, or `SKILL_REPO` to use a different GitHub repo.

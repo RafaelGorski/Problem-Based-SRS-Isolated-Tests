@@ -16,6 +16,10 @@
     Use a predefined fixture context (inventory, crm, field-service)
 
 .EXAMPLE
+    .\test-skill.ps1 -Skill customer-problems -Local C:\work\Problem-Based-SRS
+    # Tests /cp skill using local skills folder
+
+.EXAMPLE
     .\test-skill.ps1 -Skill customer-problems -UseFixture inventory
     # Tests /cp skill with inventory context
 
@@ -31,6 +35,8 @@ param(
                  'complexity-analysis', 'problem-based-srs')]
     [string]$Skill,
     
+    [string]$Local = '',
+    
     [string]$Context = '',
     
     [ValidateSet('inventory', 'crm', 'field-service', '')]
@@ -41,6 +47,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $ProjectRoot = $PSScriptRoot
+
+# Set SKILL_DIR if -Local was provided (before config detection)
+if ($Local) {
+    $env:SKILL_DIR = $Local
+}
 
 # Get configuration info
 function Get-TestConfig {

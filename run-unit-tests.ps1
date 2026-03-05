@@ -12,6 +12,10 @@
 .PARAMETER Test
     Run a specific test by name pattern
 
+.PARAMETER Local
+    Path to local skills folder. When set, uses local skills instead of cloning from GitHub.
+    Example: -Local C:\work\Problem-Based-SRS
+
 .PARAMETER Verbose
     Show verbose output
 
@@ -24,6 +28,10 @@
 .EXAMPLE
     .\run-unit-tests.ps1
     # Runs all unit tests
+
+.EXAMPLE
+    .\run-unit-tests.ps1 -Local C:\work\Problem-Based-SRS
+    # Runs unit tests using local skills folder
 
 .EXAMPLE
     .\run-unit-tests.ps1 -Skill customer-problems
@@ -52,6 +60,8 @@ param(
                  'complexity-analysis', 'problem-based-srs', '')]
     [string]$Skill = '',
     
+    [string]$Local = '',
+    
     [string]$Test = '',
     
     [switch]$Verbose,
@@ -70,6 +80,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $ProjectRoot = $PSScriptRoot
+
+# Set SKILL_DIR if -Local was provided (before config detection)
+if ($Local) {
+    $env:SKILL_DIR = $Local
+}
 
 # Get configuration info
 function Get-TestConfig {

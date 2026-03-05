@@ -31,8 +31,16 @@
 .PARAMETER Parallel
     Number of parallel workers for pytest tests
 
+.PARAMETER Local
+    Path to local skills folder. When set, uses local skills instead of cloning from GitHub.
+    Example: -Local C:\work\Problem-Based-SRS
+
 .PARAMETER FailFast
     Stop on first failure
+
+.EXAMPLE
+    .\run-all-tests.ps1 -Local C:\work\Problem-Based-SRS
+    # Runs all tests using local skills folder
 
 .EXAMPLE
     .\run-all-tests.ps1
@@ -63,6 +71,7 @@ param(
     [switch]$Quick,
     [switch]$Full,
     [switch]$Html,
+    [string]$Local = '',
     [int]$Parallel = 0,
     [switch]$FailFast,
     [switch]$DryRun
@@ -139,6 +148,15 @@ if ($runQuick) {
 }
 Write-Host "  Coverage:       $(if($runCoverage){'✓ Yes'}else{'- Skip'})" -ForegroundColor $(if($runCoverage){'Green'}else{'Gray'})
 Write-Host "  Mutation:       $(if($runMutation){'✓ Yes'}else{'- Skip'})" -ForegroundColor $(if($runMutation){'Green'}else{'Gray'})
+
+# Show skill source
+if ($Local) {
+    Write-Host "  Skill Source:   local ($Local)" -ForegroundColor Yellow
+} elseif ($env:SKILL_DIR) {
+    Write-Host "  Skill Source:   local ($env:SKILL_DIR)" -ForegroundColor Yellow
+} else {
+    Write-Host "  Skill Source:   github (default)" -ForegroundColor Gray
+}
 Write-Host ""
 
 if ($DryRun) {
@@ -147,6 +165,9 @@ if ($DryRun) {
 }
 
 # Setup environment
+if ($Local) {
+    $env:SKILL_DIR = $Local
+}
 $env:PYTHONPATH = "$ProjectRoot\scripts"
 Push-Location $ProjectRoot
 
